@@ -1,7 +1,3 @@
-# Usage: python hf_client.py <uuid> <text to be completed>
-# Ex: python hf_client.py 8165b659-e9ba-4ee7-b396-a10effe4818c "dog is "
-
-
 import configparser
 import requests
 import sys
@@ -17,7 +13,7 @@ if len(sys.argv) > 2:
     param1 = sys.argv[1]
     param2 = sys.argv[2]
 else:
-    print("Please provide uuid.")
+    print("Please provide uuid & image path.")
     exit(1)
 
 # get http url & token
@@ -35,9 +31,15 @@ deployment = r.json()['deployment']
 # get serving details
 SERVING_TOKEN = deployment['serving_token']
 SERVING_ENDPOINT = f"{url}{deployment['endpoint']}"
+IMAGE_PATH =  param2 #"/home/sriharsha-barkuru/workspaces/default-workspace/ray/images/pull-over.png"
+
+# convert image to bytes
+with open(IMAGE_PATH, "rb") as image:
+   f = image.read()
+   image_bytes = bytearray(f)
 
 # serving request
 headers={'Authorization': SERVING_TOKEN}
-resp = requests.post(SERVING_ENDPOINT, json={"prompt": param2}, headers=headers, verify=False)
-print (resp.text)
+resp = requests.post(SERVING_ENDPOINT, data=image_bytes, headers=headers, verify=False)
+print (resp.json())
 
